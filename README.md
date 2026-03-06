@@ -168,4 +168,158 @@ MIT License - Use freely, give credit if you want.
 
 Built with 💙 by Daham (https://twitter.com/clawcraft_io) as part of ClawCraft (https://clawcraft.substack.com/).
 
-Last updated: March 2024
+---
+
+## 🚨 Common Issues & Fixes
+
+### "Gateway keeps stopping"
+
+**Why:** VPS resource limits, memory pressure, or auto-restart loops
+
+**Fix:**
+```bash
+# Check resources
+free -h
+df -h
+
+# Monitor with auto-restart
+# Install vps-monitor skill for automatic alerts
+
+Prevention:
+
+• Use VPS with 2GB+ RAM
+• Monitor disk space (keep 20% free)
+• Set up alerts with vps-monitor skill
+
+───
+
+"False alerts every 5 minutes"
+
+Why: Gateway briefly restarts during checks, monitor too sensitive
+
+Fix - Increase interval:
+crontab -e
+# Change */5 to */30 (every 30 min instead of 5)
+*/30 * * * * /opt/vps-monitor/check-health.sh
+
+Fix - Add cooldown:
+Add to monitor script to only alert once per hour.
+
+───
+
+"Can't connect to Gateway"
+
+Symptoms: "Connection refused", commands timeout
+
+Check:
+openclaw gateway status
+sudo lsof -i :8080
+sudo ufw status
+
+Fixes:
+# Restart Gateway
+sudo openclaw gateway start
+
+# Open firewall port
+sudo ufw allow 8080/tcp
+
+───
+
+"Model API errors"
+
+Symptoms: "Invalid API key", "Rate limit exceeded"
+
+Fixes:
+
+• Add credits to API account
+• Switch to cheaper model (Kimi vs GPT-4)
+• Check model name spelling
+
+───
+
+💰 Cost Optimization
+
+Reduce API Costs
+
+Use cheaper models:
+
+• Kimi K2.5: ~$0.50-2/session (learning)
+• GPT-3.5: ~$0.10-0.50/session (simple tasks)
+• GPT-4o: ~$3-8/session (only for complex code)
+
+Reduce VPS Costs
+
+Start small:
+
+• 1GB RAM VPS: $3-5/month (minimum)
+• Use swap space instead of more RAM
+
+───
+
+🔒 Security Best Practices
+
+Basic VPS Hardening
+# Update system
+sudo apt update && sudo apt upgrade -y
+
+# Create non-root user
+sudo adduser yourname
+sudo usermod -aG sudo yourname
+
+# Enable firewall
+sudo ufw allow 22/tcp
+sudo ufw allow 8080/tcp
+sudo ufw enable
+
+───
+
+🔄 Best Practices for 24/7 Uptime
+
+Use Systemd Service
+
+Create /etc/systemd/system/openclaw-gateway.service:
+[Unit]
+Description=OpenClaw Gateway
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/bin/openclaw gateway start
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
+Enable:
+sudo systemctl enable openclaw-gateway
+sudo systemctl start openclaw-gateway
+
+Regular Backups
+# Backup your workspace
+tar -czf backup-$(date +%Y%m%d).tar.gz ~/.openclaw/
+
+───
+
+🆘 Getting Help
+
+When stuck:
+
+1. Check docs: https://docs.openclaw.ai (https://docs.openclaw.ai/)
+2. Search issues: github.com/openclaw/openclaw/issues (http://github.com/openclaw/openclaw/issues)
+3. Ask community:
+  • OpenClaw Discord: https://discord.com/invite/clawd
+  • r/selfhosted (for VPS questions)
+
+Debug steps:
+openclaw status
+openclaw gateway logs --tail 50
+openclaw doctor
+
+───
+
+Want the complete guided setup? Check out my openclaw-setup-wizard skill on ClawHub (https://clawhub.com/) - launching March 15 🚀
+
+
+Last updated: March 2026
